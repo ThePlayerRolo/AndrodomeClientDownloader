@@ -1,13 +1,11 @@
-import requests
-import wget
+import argparse
 import os
 import shutil
 from zipfile import ZipFile
+import requests
+import wget
 
 BaseUrl = "https://androdome.com/DeployHistory/version/version-"
-Version = "fb3436d54f9e4598"
-
-BaseFolder = "versions\\version-" + Version + "\\"
 ContentFolder = "content\\"
 
 AllZips = [
@@ -59,7 +57,10 @@ NewDirectoryForZip = [
     "Extras\\"
 ]
 
-os.makedirs(BaseFolder, 511, True)
+global Version
+Version = ""
+global BaseFolder
+BaseFolder = ""
 
 def checkIfUrlExists(urlString: str):
     request = requests.head(urlString, allow_redirects=True)
@@ -73,7 +74,21 @@ def ExtractZip(baseFolder: str, nameOfZip: str, extraDir: str):
     texturesZip.close()
     os.remove(baseFolder + nameOfZip)
 
+def getVersion():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--version", help="Hash that represents the Roblox Version to Install")
+    args = parser.parse_args()
+    if args.version:
+        return args.version
+    return ""
+
 def main_function():
+    Version = getVersion()
+    if Version == "":
+        print("ERROR: -v must be provided!")
+        exit()
+    BaseFolder = "versions\\version-" + Version + "\\"
+    os.makedirs(BaseFolder, 511, True)
     for i in range(len(AllZips)):
         urlString = BaseUrl + Version + "-" + AllZips[i]
         if (checkIfUrlExists(urlString)):
